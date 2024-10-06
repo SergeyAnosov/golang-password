@@ -32,7 +32,7 @@ func (acc *account) generatePassword(n int) {
 	acc.password = string(res)
 }
 
-func newAccount(login, password, urlString string) (*account, error) {
+func newAccountWithTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
 	if login == "" {
 		return nil, errors.New("error. Login is empty")
 	}
@@ -42,10 +42,14 @@ func newAccount(login, password, urlString string) (*account, error) {
 		return nil, errors.New("invalid URL")
 	}
 
-	tempAcc := &account{
-		url:      urlString,
-		login:    login,
-		password: password,
+	tempAcc := &accountWithTimeStamp{
+		createdAt: time.Now(),
+		updatedAt: time.Now(),
+		account: account{
+			login:    login,
+			password: password,
+			url:      urlString,
+		},
 	}
 
 	if tempAcc.password == "" {
@@ -54,6 +58,29 @@ func newAccount(login, password, urlString string) (*account, error) {
 
 	return tempAcc, nil
 }
+
+// func newAccount(login, password, urlString string) (*account, error) {
+// 	if login == "" {
+// 		return nil, errors.New("error. Login is empty")
+// 	}
+
+// 	_, err := url.ParseRequestURI(urlString)
+// 	if err != nil {
+// 		return nil, errors.New("invalid URL")
+// 	}
+
+// 	tempAcc := &account{
+// 		url:      urlString,
+// 		login:    login,
+// 		password: password,
+// 	}
+
+// 	if tempAcc.password == "" {
+// 		tempAcc.generatePassword(12)
+// 	}
+
+// 	return tempAcc, nil
+// }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUYWXZ1234567890-*!")
 
@@ -66,13 +93,14 @@ func main() {
 	}
 	url := promptData("Введите URL: ")
 
-	myAccount, err := newAccount(login, password, url)
+	myAccount, err := newAccountWithTimeStamp(login, password, url)
 	if err != nil {
 		fmt.Print("Не верный формат URL или LOGIN")
 		return
 	}
 
 	myAccount.outputPassword()
+	fmt.Println(myAccount)
 }
 
 func promptData(prompt string) string {
