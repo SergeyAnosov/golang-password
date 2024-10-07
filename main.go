@@ -1,17 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"demo/password/account"
 	"demo/password/files"
+	"fmt"
 )
 
-
-
-func main() {
-
+func main() {	
 	files.ReadFile()
-	files.WriteFile()
+	files.WriteFile("Привет! я файл2", "file.txt")
 	login := promptData("Введите логин: ")
 	password := promptData("Введите пароль: ")
 	if password == "" {
