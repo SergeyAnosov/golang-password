@@ -13,8 +13,8 @@ import (
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUYWXZ1234567890-*!")
 
 type Account struct {
-	login    string
-	password string
+	login    string `json:"login"`
+	password string 
 	url      string
 }
 
