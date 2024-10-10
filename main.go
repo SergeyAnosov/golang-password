@@ -3,27 +3,31 @@ package main
 import (
 	"demo/password/account"
 	"fmt"
+
+	"github.com/fatih/color"
 )
 
 func main() {
 	fmt.Println("__Менеджер парольей__")
+	vault := account.NewVault()
+
 Menu:
 	for {
 		input := printMenu()
 		switch input {
 		case 1:
-			createAccount()
+			createAccount(vault)
 		case 2:
-			findAccount()
+			findAccount(vault)
 		case 3:
-			deleteAccount()
+			deleteAccount(vault)
 		default:
 			break Menu
 		}
 	}
 }
 
-func createAccount() {
+func createAccount(vault *account.Vault) {
 	login := promptData("Введите логин: ")
 	password := promptData("Введите пароль: ")
 	url := promptData("Введите URL: ")
@@ -33,7 +37,6 @@ func createAccount() {
 		fmt.Println("Не верный формат URL или LOGIN")
 		return
 	}
-	vault := account.NewVault()
 	vault.AddAccount(*myAccount)
 }
 
@@ -55,10 +58,25 @@ func printMenu() int {
 	return input
 }
 
-func findAccount() {
+func findAccount(vault *account.Vault) {
+	url := promptData("Введите URL: ")
+	accounts := vault.FindAccount(url)
+	if len(accounts) == 0 {
+		color.Red("аккаунтов не найдено")
+	}
+	for _, account := range accounts {
+		account.Output()
+	}
 
 }
 
-func deleteAccount() {
+func deleteAccount(vault *account.Vault) {
+	url := promptData("Введите URL: ")
+	isDeleted := vault.DeleteAccount(url)
+	if isDeleted {
+		color.Green("Удалено")
+	} else {
+		color.Red("Не найденоа")
+	}
 
 }

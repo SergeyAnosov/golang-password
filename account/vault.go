@@ -3,6 +3,7 @@ package account
 import (
 	"demo/password/files"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -33,14 +34,36 @@ func NewVault() *Vault {
 	return &vault
 }
 
+func (vault *Vault) FindAccount(str string) []Account {
+	var result []Account
+	for _, account := range vault.Accounts {
+		isMatched := strings.Contains(account.Url, str)
+		if isMatched {
+			result = append(result, account)
+		}
+	}
+	return result
+}
+
+func (vault *Vault) DeleteAccount(str string) bool {
+	var result []Account
+	isDeleted := false
+	for _, account := range vault.Accounts {
+		isMatched := strings.Contains(account.Url, str)
+		if !isMatched {
+			result = append(result, account)
+			continue
+		}
+		isDeleted = true
+	}
+	vault.Accounts = result
+	vault.save()
+	return isDeleted
+}
+
 func (vault *Vault) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
-	vault.UpdatedAt = time.Now()
-	data, err := vault.ToBytes()
-	if err != nil {
-		color.Red("не удалось преобразовать")
-	}
-	files.WriteFile(data, "data.json")
+	vault.save()
 }
 
 func (vault *Vault) ToBytes() ([]byte, error) {
@@ -49,4 +72,13 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 		return nil, err
 	}
 	return file, nil
+}
+
+func (vault *Vault) save() {
+	vault.UpdatedAt = time.Now()
+	data, err := vault.ToBytes()
+	if err != nil {
+		color.Red("не удалось преобразовать")
+	}
+	files.WriteFile(data, "data.json")
 }

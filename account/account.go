@@ -2,7 +2,6 @@ package account
 
 import (
 	"errors"
-	"fmt"
 	"math/rand/v2"
 	"net/url"
 	"time"
@@ -20,9 +19,10 @@ type Account struct {
 	UpdatedAt time.Time `json:"ureatedAt"`
 }
 
-func (acc *Account) OutputPassword() {
-	color.Cyan(acc.Login, acc.Password, acc.Url)
-	fmt.Println(acc.Login, acc.Password, acc.Url)
+func (acc *Account) Output() {
+	color.Cyan(acc.Login)
+	color.Cyan(acc.Password)
+	color.Cyan(acc.Url)
 }
 
 func (acc *Account) generatePassword(n int) {
