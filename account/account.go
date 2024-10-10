@@ -25,7 +25,6 @@ func (acc *Account) OutputPassword() {
 	fmt.Println(acc.Login, acc.Password, acc.Url)
 }
 
-
 func (acc *Account) generatePassword(n int) {
 	res := make([]rune, n)
 	for i := range res {
