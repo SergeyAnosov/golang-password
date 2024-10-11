@@ -14,27 +14,41 @@ type Vault struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-func NewVault() *Vault {
-	file, err := files.ReadFile("data.json")
+type VaultWithDb struct {
+	Vault
+	db files.JsonDb
+}
+
+func NewVault(db *files.JsonDb) *VaultWithDb {
+	file, err := db.Read()
 	if err != nil {
-		return &Vault{
-			Accounts:  []Account{},
-			UpdatedAt: time.Now(),
+		return &VaultWithDb{
+			Vault: Vault{
+				Accounts:  []Account{},
+				UpdatedAt: time.Now(),
+			},
+			db: *db,
 		}
 	}
 	var vault Vault
 	err = json.Unmarshal(file, &vault)
 	if err != nil {
 		color.Red("не удалось разобрать файл data.json")
-		return &Vault{
-			Accounts:  []Account{},
-			UpdatedAt: time.Now(),
+		return &VaultWithDb{
+			Vault: Vault{
+				Accounts:  []Account{},
+				UpdatedAt: time.Now(),
+			},
+			db: *db,
 		}
 	}
-	return &vault
+	return &VaultWithDb{
+		Vault: vault,
+		db:    *db,
+	}
 }
 
-func (vault *Vault) FindAccount(str string) []Account {
+func (vault *VaultWithDb) FindAccount(str string) []Account {
 	var result []Account
 	for _, account := range vault.Accounts {
 		isMatched := strings.Contains(account.Url, str)
@@ -45,7 +59,7 @@ func (vault *Vault) FindAccount(str string) []Account {
 	return result
 }
 
-func (vault *Vault) DeleteAccount(str string) bool {
+func (vault *VaultWithDb) DeleteAccount(str string) bool {
 	var result []Account
 	isDeleted := false
 	for _, account := range vault.Accounts {
@@ -61,7 +75,7 @@ func (vault *Vault) DeleteAccount(str string) bool {
 	return isDeleted
 }
 
-func (vault *Vault) AddAccount(acc Account) {
+func (vault *VaultWithDb) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
 	vault.save()
 }
@@ -74,11 +88,11 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 	return file, nil
 }
 
-func (vault *Vault) save() {
+func (vault *VaultWithDb) save() {
 	vault.UpdatedAt = time.Now()
-	data, err := vault.ToBytes()
+	data, err := vault.Vault.ToBytes()
 	if err != nil {
 		color.Red("не удалось преобразовать")
 	}
-	files.WriteFile(data, "data.json")
+	vault.db.Write(data)
 }
