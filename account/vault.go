@@ -9,6 +9,8 @@ import (
 	"github.com/fatih/color"
 )
 
+type Db interface{}
+
 type Vault struct {
 	Accounts  []Account `json:"accounts"`
 	UpdatedAt time.Time `json:"updatedAt"`
