@@ -59,15 +59,15 @@ func NewVault(db Db) *VaultWithDb {
 	}
 }
 
-func (vault *VaultWithDb) FindAccount(str string) []Account {
-	var result []Account
+func (vault *VaultWithDb) FindAccounts(str string, checker func(Account, string) bool) []Account {
+	var accounts []Account
 	for _, account := range vault.Accounts {
-		isMatched := strings.Contains(account.Url, str)
+		isMatched := checker(account, str)
 		if isMatched {
-			result = append(result, account)
+			accounts = append(accounts, account)
 		}
 	}
-	return result
+	return accounts
 }
 
 func (vault *VaultWithDb) DeleteAccount(str string) bool {

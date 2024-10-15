@@ -5,14 +5,16 @@ import (
 	"demo/password/files"
 	"demo/password/output"
 	"fmt"
+	"strings"
 
 	"github.com/fatih/color"
 )
 
 var menu = map[string]func(*account.VaultWithDb){
 	"1": createAccount,
-	"2": findAccount,
-	"3": deleteAccount,
+	"2": findAccountByURL,
+	"3": findAccountByLogin,
+	"4": deleteAccount,
 }
 
 func main() {
@@ -23,9 +25,10 @@ Menu:
 	for {
 		variant := promptData([]string{
 			"1. Создать аккаунт",
-			"2. Найти аккаунт",
-			"3. Удалить аккаунт",
-			"4. Выход",
+			"2. Найти аккаунт по URL",
+			"3. Найти аккаунт по логину",
+			"4. Удалить аккаунт",
+			"5. Выход",
 			"Выберите вариант",
 		})
 		menuFunc := menu[variant]
@@ -59,16 +62,29 @@ func createAccount(vault *account.VaultWithDb) {
 	vault.AddAccount(*myAccount)
 }
 
-func findAccount(vault *account.VaultWithDb) {
+func findAccountByURL(vault *account.VaultWithDb) {
 	url := promptData([]string{"Введите URL: "})
-	accounts := vault.FindAccount(url)
-	if len(accounts) == 0 {
+	accounts := vault.FindAccounts(url, func(acc account.Account, str string) bool {
+		return strings.Contains(acc.Url, str)
+	})
+	outputResult(&accounts)	
+}
+
+func findAccountByLogin(vault *account.VaultWithDb) {
+	login := promptData([]string{"Введите логин для поиска: "})
+	accounts := vault.FindAccounts(login, func(acc account.Account, str string) bool {
+		return strings.Contains(acc.Login, login)
+	})
+	outputResult(&accounts)	
+}
+
+func outputResult(accounts *[]account.Account) {
+	if len(*accounts) == 0 {
 		color.Red("аккаунтов не найдено")
 	}
-	for _, account := range accounts {
+	for _, account := range *accounts {
 		account.Output()
 	}
-
 }
 
 func deleteAccount(vault *account.VaultWithDb) {
