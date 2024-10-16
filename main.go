@@ -5,9 +5,11 @@ import (
 	"demo/password/files"
 	"demo/password/output"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/joho/godotenv"
 )
 
 var menu = map[string]func(*account.VaultWithDb){
@@ -30,12 +32,22 @@ func menuCounter() func() {
 	i := 0
 	return func() {
 		i++
-		fmt.Println(i)
+		fmt.Println("Счётчик вызова основного меню: ", i)
 	}
 }
 
-func main() {
+func main() {	
 	fmt.Println("__Менеджер парольей__")
+	err := godotenv.Load()
+	if err != nil {
+		output.PrintError("Не удалось найти env файл")
+	}
+
+	for _, e := range os.Environ(){
+		pair := strings.SplitN(e, "=", 2)
+		fmt.Println(pair)
+	}
+
 	vault := account.NewVault(files.NewJsonDb("data.json"))
 	counter := menuCounter()
 
