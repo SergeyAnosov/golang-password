@@ -2,10 +2,10 @@ package main
 
 import (
 	"demo/password/account"
+	"demo/password/encrypter"
 	"demo/password/files"
 	"demo/password/output"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -36,19 +36,13 @@ func menuCounter() func() {
 	}
 }
 
-func main() {	
+func main() {
 	fmt.Println("__Менеджер парольей__")
 	err := godotenv.Load()
 	if err != nil {
 		output.PrintError("Не удалось найти env файл")
 	}
-
-	for _, e := range os.Environ(){
-		pair := strings.SplitN(e, "=", 2)
-		fmt.Println(pair)
-	}
-
-	vault := account.NewVault(files.NewJsonDb("data.json"))
+	vault := account.NewVault(files.NewJsonDb("data.json"), *encrypter.NewEncrypter())
 	counter := menuCounter()
 
 Menu:
