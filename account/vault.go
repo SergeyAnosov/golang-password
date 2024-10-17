@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 type ByteReader interface {
@@ -44,10 +46,12 @@ func NewVault(db Db, enc encrypter.Encrypter) *VaultWithDb {
 			enc: enc,
 		}
 	}
+	data := enc.Decrypt(file)
 	var vault Vault
-	err = json.Unmarshal(file, &vault)
+	err = json.Unmarshal(data, &vault)
+	color.Blue("Найдено %d аккаунтов", len(vault.Accounts))
 	if err != nil {
-		output.PrintError("не удалось разобрать файл data.json")
+		output.PrintError("не удалось разобрать файл data.vault")
 		return &VaultWithDb{
 			Vault: Vault{
 				Accounts:  []Account{},
@@ -107,8 +111,9 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 func (vault *VaultWithDb) save() {
 	vault.UpdatedAt = time.Now()
 	data, err := vault.Vault.ToBytes()
+	encData := vault.enc.Encrypt(data)
 	if err != nil {
 		output.PrintError("не удалось преобразовать")
 	}
-	vault.db.Write(data)
+	vault.db.Write(encData)
 }

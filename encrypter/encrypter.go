@@ -49,7 +49,8 @@ func (enc *Encrypter) Decrypt(encryptedStr []byte) []byte {
 		panic(err.Error())
 	}
 	nonceSize := aesGSM.NonceSize()
-	nonce, cipherText := encryptedStr[:nonceSize], encryptedStr[nonceSize:]
+	nonce := encryptedStr[:nonceSize]
+	cipherText := encryptedStr[nonceSize:]
 	plainText, err := aesGSM.Open(nil, nonce, cipherText, nil)
 	if err != nil {
 		panic(err.Error())

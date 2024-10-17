@@ -42,7 +42,7 @@ func main() {
 	if err != nil {
 		output.PrintError("Не удалось найти env файл")
 	}
-	vault := account.NewVault(files.NewJsonDb("data.json"), *encrypter.NewEncrypter())
+	vault := account.NewVault(files.NewJsonDb("data.vault"), *encrypter.NewEncrypter())
 	counter := menuCounter()
 
 Menu:
